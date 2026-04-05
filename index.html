@@ -153,7 +153,17 @@
         }
 
         @media print {
-            html, body {
+            /* 1. Kill EVERY background, shadow, and filter globally */
+            *, *::before, *::after {
+                background: transparent !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+                filter: none !important;
+                -webkit-filter: none !important;
+            }
+
+            /* 2. Reset Page and Containers to Pure White */
+            html, body, .page {
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -162,14 +172,8 @@
                 overflow: hidden !important;
             }
             
-            /* Hide EVERYTHING except the page content */
             body > *:not(.page) {
                 display: none !important;
-                visibility: hidden !important;
-            }
-
-            .live-preview, .no-print, .controls { 
-                display: none !important; 
                 visibility: hidden !important;
             }
 
@@ -177,18 +181,19 @@
                 display: flex !important; 
                 visibility: visible !important;
                 transform: none !important; 
-                margin: 0 !important; 
-                padding: 0 !important;
                 border: none !important;
-                box-shadow: none !important;
-                background: white !important;
                 width: 210mm !important;
-                height: 295mm !important; /* Safety buffer */
+                height: 295mm !important;
             }
 
+            /* 3. Subtle, Professional Cut Lines */
             .item, .item-rotated {
-                border: 0.1mm dashed #eee !important; /* Very light gray for cutting */
+                border: 0.05mm dashed #ccc !important;
                 background: white !important;
+            }
+
+            .info, .name {
+                background: transparent !important;
             }
         }
 
