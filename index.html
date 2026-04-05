@@ -12,8 +12,8 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --tag-width: 67mm;
-            --tag-height: 105mm;
+            --tag-width: 70mm;
+            --tag-height: 110mm;
         }
 
         @page {
@@ -26,32 +26,41 @@
             padding: 0;
             background-color: #f0f2f5;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
             font-family: "Yu Mincho", "YuMincho", "MS Mincho", "MS PMincho", serif;
         }
 
+        /* Live Preview shown on screen (mobile/tablet) */
+        .live-preview {
+            display: none;
+            margin-top: 40px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Printable Page */
         .page {
             width: 210mm;
-            height: 296mm; /* Slightly smaller than 297mm for safety */
+            height: 297mm;
             background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
             overflow: hidden;
-            padding: 5mm 0; /* Add safety top/bottom padding */
-            break-inside: avoid;
+            padding: 0;
+            margin: 0;
         }
 
         .grid-3x2 {
             display: grid;
             grid-template-columns: repeat(3, var(--tag-width));
             grid-template-rows: repeat(2, var(--tag-height));
-            width: 201mm; /* 67mm * 3 */
-            height: 210mm; /* 105mm * 2 */
+            width: 210mm;
+            height: 220mm;
         }
 
         .item {
@@ -67,22 +76,21 @@
             height: var(--tag-height);
             gap: 6mm;
             overflow: hidden;
-            break-inside: avoid;
         }
 
-        /* 7th rotated item */
+        /* 7th rotated item - Fixed logic */
         .footer {
             width: 100%;
-            flex: 1;
+            height: 77mm; /* Exactly 297 - 220 */
             display: flex;
             justify-content: center;
             align-items: center;
-            padding-bottom: 5mm;
+            overflow: hidden;
         }
 
         .item-rotated {
-            width: var(--tag-width);
-            height: var(--tag-height); 
+            width: var(--tag-width); /* 70mm */
+            height: var(--tag-height); /* 110mm */
             border: 0.1mm dashed #eee;
             display: flex;
             flex-direction: column;
@@ -90,9 +98,8 @@
             align-items: center;
             writing-mode: vertical-rl;
             text-orientation: upright;
-            transform: rotate(-90deg);
+            transform: rotate(-90deg); /* Visual height becomes 70mm */
             gap: 6mm;
-            break-inside: avoid;
         }
 
         .info {
@@ -109,33 +116,54 @@
             white-space: nowrap;
         }
 
-        @media print {
-            body {
-                background: white;
-                margin: 0;
+        /* Responsive Previews */
+        @media screen {
+            /* Desktop View: Show full page */
+            @media (min-width: 1024px) {
+                .live-preview { display: none !important; }
+                .page { 
+                    display: flex !important; 
+                    transform: scale(0.7); 
+                    transform-origin: top center;
+                    margin-top: 20px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                }
+                body { overflow-x: hidden; }
             }
 
-            .page {
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            .no-print {
-                display: none !important;
-                visibility: hidden !important;
-                opacity: 0 !important;
-                position: absolute !important;
-                pointer-events: none !important;
-            }
-
-            .item {
-                border: 0.1mm dashed #f0f0f0;
+            /* Mobile/Tablet View: Show single tag */
+            @media (max-width: 1023px) {
+                .page { display: none !important; }
+                .live-preview { display: flex !important; }
+                .live-preview .item {
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    background: white;
+                    border: 1px solid #ddd;
+                }
+                .controls {
+                    position: relative;
+                    top: 0;
+                    right: 0;
+                    width: 90%;
+                    margin: 20px auto;
+                    max-height: none;
+                }
             }
         }
 
-        /* Screen only UI */
+        @media print {
+            .live-preview, .no-print, .controls { display: none !important; }
+            .page { 
+                display: flex !important; 
+                transform: none !important; 
+                margin: 0 !important; 
+                box-shadow: none !important; 
+                border: none !important; 
+            }
+            body { background: white; padding: 0; margin: 0; }
+        }
+
+        /* UI Styling */
         .controls {
             position: fixed;
             top: 20px;
@@ -270,6 +298,13 @@
         </div>
 
         <button onclick="window.print()">印刷・PDF保存</button>
+    </div>
+
+    <div class="live-preview">
+        <div class="item">
+            <div class="info">三年 二組</div>
+            <div class="name">名無し　権兵衛</div>
+        </div>
     </div>
 
     <div class="page">
