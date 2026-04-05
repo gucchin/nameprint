@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A4サイズ名札作成</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="A4名札作成">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --tag-width: 70mm;
+            --tag-height: 110mm;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            font-family: "Yu Mincho", "YuMincho", "MS Mincho", "MS PMincho", serif;
+        }
+
+        .page {
+            width: 210mm;
+            height: 297mm;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .grid-3x2 {
+            display: grid;
+            grid-template-columns: repeat(3, var(--tag-width));
+            grid-template-rows: repeat(2, var(--tag-height));
+            width: 210mm;
+            height: 220mm;
+        }
+
+        .item {
+            border: 0.1mm dashed #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            box-sizing: border-box;
+            width: var(--tag-width);
+            height: var(--tag-height);
+            gap: 6mm;
+        }
+
+        /* 7th rotated item */
+        .footer {
+            width: 100%;
+            height: 77mm; /* Remaining space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 0.1mm dashed #eee;
+        }
+
+        .item-rotated {
+            width: var(--tag-width);
+            height: var(--tag-height);
+            border: 0.1mm dashed #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            transform: rotate(-90deg);
+            gap: 6mm;
+        }
+
+        .info {
+            font-size: 40pt;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .name {
+            font-size: 40pt;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            white-space: nowrap;
+        }
+
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+            }
+
+            .page {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                position: absolute !important;
+                pointer-events: none !important;
+            }
+
+            .item {
+                border: 0.1mm dashed #f0f0f0;
+            }
+        }
+
+        /* Screen only UI */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 250px;
+            border: 1px solid #eee;
+        }
+
+        h3 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, ring 0.2s;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            margin-top: 8px;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="controls no-print">
+        <h3>名札作成ツール</h3>
+        <p>・A4縦向き / 7枚配置</p>
+        
+        <div class="input-group">
+            <label for="input-info">学年・組</label>
+            <input type="text" id="input-info" value="三年 二組" placeholder="例：三年 二組">
+        </div>
+
+        <div class="input-group">
+            <label for="input-name">氏名</label>
+            <input type="text" id="input-name" value="名無し　権兵衛" placeholder="例：名無し　権兵衛">
+        </div>
+
+        <div class="input-group">
+            <label for="input-size">フォントサイズ (pt)</label>
+            <input type="number" id="input-size" value="40" min="10" max="100">
+        </div>
+
+        <div class="input-group">
+            <label for="input-font">フォントの種類</label>
+            <select id="input-font">
+                <option value='"Yu Mincho", "YuMincho", "MS Mincho", "MS PMincho", serif'>明朝体 (標準)</option>
+                <option value='"Yu Gothic", "YuGothic", "MS Gothic", "MS PGothic", sans-serif'>ゴシック体</option>
+                <option value='"Meiryo", sans-serif'>メイリオ</option>
+            </select>
+        </div>
+
+        <button onclick="window.print()">印刷・PDF保存</button>
+    </div>
+
+    <div class="page">
+        <!-- 6 items in 3x2 grid -->
+        <div class="grid-3x2">
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+            <div class="item">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+        </div>
+
+        <!-- 7th rotated item at the bottom -->
+        <div class="footer">
+            <div class="item-rotated">
+                <div class="info">三年 二組</div>
+                <div class="name">名無し　権兵衛</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputInfo = document.getElementById('input-info');
+        const inputName = document.getElementById('input-name');
+        const inputSize = document.getElementById('input-size');
+        const inputFont = document.getElementById('input-font');
+        
+        const infos = document.querySelectorAll('.info');
+        const names = document.querySelectorAll('.name');
+        const items = document.querySelectorAll('.item, .item-rotated');
+
+        function updateTags() {
+            const infoText = inputInfo.value;
+            const nameText = inputName.value;
+            const fontSize = inputSize.value + 'pt';
+            const fontFamily = inputFont.value;
+
+            infos.forEach(info => {
+                info.textContent = infoText;
+                info.style.fontSize = fontSize;
+            });
+            names.forEach(name => {
+                name.textContent = nameText;
+                name.style.fontSize = fontSize;
+            });
+            items.forEach(item => {
+                item.style.fontFamily = fontFamily;
+            });
+        }
+
+        [inputInfo, inputName, inputSize, inputFont].forEach(el => {
+            el.addEventListener('input', updateTags);
+        });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Error', err));
+            });
+        }
+    </script>
+
+</body>
+
+</html>
