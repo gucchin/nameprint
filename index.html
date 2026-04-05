@@ -154,23 +154,41 @@
 
         @media print {
             html, body {
+                background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 210mm !important;
                 height: 297mm !important;
+                overflow: hidden !important;
             }
+            
+            /* Hide EVERYTHING except the page content */
+            body > *:not(.page) {
+                display: none !important;
+                visibility: hidden !important;
+            }
+
             .live-preview, .no-print, .controls { 
                 display: none !important; 
+                visibility: hidden !important;
             }
+
             .page { 
                 display: flex !important; 
+                visibility: visible !important;
                 transform: none !important; 
                 margin: 0 !important; 
                 padding: 0 !important;
                 border: none !important;
                 box-shadow: none !important;
+                background: white !important;
                 width: 210mm !important;
                 height: 295mm !important; /* Safety buffer */
+            }
+
+            .item, .item-rotated {
+                border: 0.1mm dashed #eee !important; /* Very light gray for cutting */
+                background: white !important;
             }
         }
 
