@@ -12,8 +12,8 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --tag-width: 70mm;
-            --tag-height: 110mm;
+            --tag-width: 67mm;
+            --tag-height: 105mm;
         }
 
         @page {
@@ -34,7 +34,7 @@
 
         .page {
             width: 210mm;
-            height: 297mm;
+            height: 296mm; /* Slightly smaller than 297mm for safety */
             background-color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -42,19 +42,20 @@
             align-items: center;
             box-sizing: border-box;
             overflow: hidden;
-            padding: 0;
+            padding: 5mm 0; /* Add safety top/bottom padding */
+            break-inside: avoid;
         }
 
         .grid-3x2 {
             display: grid;
             grid-template-columns: repeat(3, var(--tag-width));
             grid-template-rows: repeat(2, var(--tag-height));
-            width: 210mm;
-            height: 220mm;
+            width: 201mm; /* 67mm * 3 */
+            height: 210mm; /* 105mm * 2 */
         }
 
         .item {
-            border: 0.1mm dashed #ddd;
+            border: 0.1mm dashed #eee;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -65,22 +66,24 @@
             width: var(--tag-width);
             height: var(--tag-height);
             gap: 6mm;
+            overflow: hidden;
+            break-inside: avoid;
         }
 
         /* 7th rotated item */
         .footer {
             width: 100%;
-            height: 77mm; /* Remaining space */
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-top: 0.1mm dashed #eee;
+            padding-bottom: 5mm;
         }
 
         .item-rotated {
             width: var(--tag-width);
-            height: var(--tag-height);
-            border: 0.1mm dashed #ddd;
+            height: var(--tag-height); 
+            border: 0.1mm dashed #eee;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -89,6 +92,7 @@
             text-orientation: upright;
             transform: rotate(-90deg);
             gap: 6mm;
+            break-inside: avoid;
         }
 
         .info {
