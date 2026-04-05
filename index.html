@@ -11,6 +11,10 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --tag-width: 70mm;
             --tag-height: 110mm;
@@ -30,9 +34,11 @@
             align-items: center;
             min-height: 100vh;
             font-family: "Yu Mincho", "YuMincho", "MS Mincho", "MS PMincho", serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        /* Live Preview shown on screen (mobile/tablet) */
+        /* Live Preview Styles */
         .live-preview {
             display: none;
             margin-top: 40px;
@@ -41,18 +47,17 @@
             padding: 20px;
         }
 
-        /* Printable Page */
+        /* Printable Page - Calibrated for all browsers */
         .page {
             width: 210mm;
-            height: 297mm;
+            height: 295mm; /* Safety buffer to prevent 2nd page on Safari/Chrome */
             background-color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-sizing: border-box;
             overflow: hidden;
-            padding: 0;
             margin: 0;
+            padding: 0;
         }
 
         .grid-3x2 {
@@ -60,7 +65,7 @@
             grid-template-columns: repeat(3, var(--tag-width));
             grid-template-rows: repeat(2, var(--tag-height));
             width: 210mm;
-            height: 220mm;
+            height: 220mm; /* Fixed 110 * 2 */
         }
 
         .item {
@@ -71,7 +76,6 @@
             align-items: center;
             writing-mode: vertical-rl;
             text-orientation: upright;
-            box-sizing: border-box;
             width: var(--tag-width);
             height: var(--tag-height);
             gap: 6mm;
@@ -81,7 +85,7 @@
         /* 7th rotated item - Fixed logic */
         .footer {
             width: 100%;
-            height: 77mm; /* Exactly 297 - 220 */
+            height: 75mm; /* Buffer within 77mm remaining space */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -89,8 +93,8 @@
         }
 
         .item-rotated {
-            width: var(--tag-width); /* 70mm */
-            height: var(--tag-height); /* 110mm */
+            width: var(--tag-width);
+            height: var(--tag-height); 
             border: 0.1mm dashed #eee;
             display: flex;
             flex-direction: column;
@@ -98,7 +102,7 @@
             align-items: center;
             writing-mode: vertical-rl;
             text-orientation: upright;
-            transform: rotate(-90deg); /* Visual height becomes 70mm */
+            transform: rotate(-90deg);
             gap: 6mm;
         }
 
@@ -116,25 +120,23 @@
             white-space: nowrap;
         }
 
-        /* Responsive Previews */
         @media screen {
-            /* Desktop View: Show full page */
+            /* Desktop View */
             @media (min-width: 1024px) {
                 .live-preview { display: none !important; }
                 .page { 
                     display: flex !important; 
                     transform: scale(0.7); 
                     transform-origin: top center;
-                    margin-top: 20px;
                     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                    margin-top: 20px;
                 }
                 body { overflow-x: hidden; }
             }
-
-            /* Mobile/Tablet View: Show single tag */
+            /* Mobile View */
             @media (max-width: 1023px) {
                 .page { display: none !important; }
-                .live-preview { display: flex !important; }
+                .live-preview { display: flex !important; margin-top: 40px; }
                 .live-preview .item {
                     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
                     background: white;
@@ -146,21 +148,30 @@
                     right: 0;
                     width: 90%;
                     margin: 20px auto;
-                    max-height: none;
                 }
             }
         }
 
         @media print {
-            .live-preview, .no-print, .controls { display: none !important; }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+            }
+            .live-preview, .no-print, .controls { 
+                display: none !important; 
+            }
             .page { 
                 display: flex !important; 
                 transform: none !important; 
                 margin: 0 !important; 
-                box-shadow: none !important; 
-                border: none !important; 
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: 210mm !important;
+                height: 295mm !important; /* Safety buffer */
             }
-            body { background: white; padding: 0; margin: 0; }
         }
 
         /* UI Styling */
